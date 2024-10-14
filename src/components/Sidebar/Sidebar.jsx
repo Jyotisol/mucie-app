@@ -3,134 +3,82 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faXmark, faHouse, faGear, faRightFromBracket, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import Musice from "../../assets/music.png";
-import LoginForm from "../LoginForm/Loginform"; // Import the LoginForm component
-import { Link } from 'react-router-dom';
+import LoginForm from '../LoginForm/Loginform';
 
 const Sidebar = () => {
     const navigate = useNavigate();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [showLoginForm, setShowLoginForm] = useState(false); // State to manage login form visibility
+    const [showLoginForm, setShowLoginForm] = useState(false);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-    const token = localStorage.getItem("access_token");
-    const logOut = () => {
-      localStorage.removeItem("access_token");
-      setIsLoggedIn(false);
-      navigate("/");
-    };
-
-    // Function to handle login/logout toggle
     const handleAuthClick = () => {
         if (isLoggedIn) {
-            logOut(); // Call logout if logged in
+            // Logout functionality
+            localStorage.removeItem('token');
+            setIsLoggedIn(false);
         } else {
-            setShowLoginForm(true); // Show login form if not logged in
+            setShowLoginForm(true);
         }
     };
 
     return (
         <>
             {/* Full Sidebar for Large Screens */}
-            <div className='w-[15%] h-full flex-col text-white hidden lg:flex custom-md:w-[24%]'>
-                <div className='bg-[#121212] h-full rounded flex flex-col gap-3'>
-                    <div className='flex '>
-                        <img src={Musice} alt='music-log' className='w-7 m-5' />
-                        <span className='flex m-5 text-lg font-bold ml-[-9px]'>
-                            <h3 className='text-[#FF5656]'>Dream</h3>Musice
-                        </span>
-                    </div>
-                    <h3 className='pl-8'>Menu</h3>
-                    <div onClick={() => navigate('/')} className='flex items-center gap-3 pl-8 cursor-pointer'>
-                        <FontAwesomeIcon icon={faHouse} className='w-6 text-[#FF5656]' />
-                        <p className='font-bold'>Home</p>
-                    </div>
-
-                    <div className="absolute top-[30em] left-2 right-0 p-4">
-                        <h3 className="text-white my-4">General</h3>
-                        <div className="flex items-center gap-3 text-white cursor-pointer">
-                            <FontAwesomeIcon icon={faGear} className='text-red-color' />
-                            <p className="font-bold">Setting</p>
-                        </div>
-                        <div
-                            className="flex items-center gap-3 text-white cursor-pointer"
-                            onClick={handleAuthClick}
-                        >
-                            {isLoggedIn ? (
-                                <>
-                                    <FontAwesomeIcon icon={faRightFromBracket} className="text-red-500" />
-                                    <p className="font-bold">Logout</p>
-                                </>
-                            ) : (
-                                <>
-                                    <FontAwesomeIcon icon={faSignInAlt} className="text-green-500" />
-                                    <p className="font-bold">Login</p>
-                                </>
-                            )}
-                        </div>
-                    </div>
-
+            <div className='w-[15%] h-full flex-col text-white hidden lg:flex'>
+                <div className='flex items-center justify-between p-4 bg-[#121212]'>
+                    <img src={Musice} className='h-10' alt="Music App" />
+                </div>
+                <div className='flex flex-col p-4 space-y-4'>
+                    <button onClick={() => navigate('/')} className='flex items-center hover:bg-[#FF5656] p-2 rounded'>
+                        <FontAwesomeIcon icon={faHouse} className='mr-2' />
+                        Home
+                    </button>
+                    <button onClick={() => navigate('/settings')} className='flex items-center hover:bg-[#FF5656] p-2 rounded'>
+                        <FontAwesomeIcon icon={faGear} className='mr-2' />
+                        Settings
+                    </button>
+                    <button onClick={handleAuthClick} className='flex items-center hover:bg-[#FF5656] p-2 rounded'>
+                        <FontAwesomeIcon icon={isLoggedIn ? faRightFromBracket : faSignInAlt} className='mr-2' />
+                        {isLoggedIn ? 'Logout' : 'Login'}
+                    </button>
                 </div>
             </div>
 
-            {/* Hamburger Menu for Small Screens */}
-            <div className='lg:hidden fixed top-2 left-0 p-5 z-50'>
-                <button onClick={toggleMenu} className='text-white '>
-                    <FontAwesomeIcon icon={faBars} className='w-4' />
+            {/* Mobile Menu Button */}
+            <div className='flex lg:hidden p-4 bg-[#121212]'>
+                <button onClick={toggleMenu}>
+                    <FontAwesomeIcon icon={isMenuOpen ? faXmark : faBars} />
                 </button>
             </div>
 
-            {/* Slide-out Menu when Hamburger is Open */}
+            {/* Mobile Sidebar */}
             {isMenuOpen && (
-                <div className='fixed top-0 left-0 h-full w-[50%] bg-[#121212] z-40 text-white flex flex-col p-4'>
-                    <button onClick={toggleMenu} className='self-end mb-4'>
-                        <FontAwesomeIcon icon={faXmark} />
-                    </button>
-                    <h3 className='pl-4 mt-3'>Menu</h3>
-                    <div onClick={() => navigate('/')} className='flex items-center gap-3 pl-4 cursor-pointer'>
-                        <FontAwesomeIcon icon={faHouse} className='w-6 text-[#FF5656]' />
-                        <p className='font-bold'>Home</p>
-                    </div>
-                    <div className="absolute top-[30em] left-2 right-0 p-4">
-                        <h3 className="text-white my-4">General</h3>
-                        <div className="flex items-center gap-3 text-white cursor-pointer">
-                            <FontAwesomeIcon icon={faGear} className='text-red-color' />
-                            <p className="font-bold">Setting</p>
-                        </div>
-                        <div className="flex items-center gap-3 text-white cursor-pointer" onClick={handleAuthClick}>
-                            {token ? (
-                                <button
-                                    onClick={logOut}
-                                    className="bg-[#ffd700] px-5 py-1 rounded-md lg:rounded-xl shadow-lg text-[#7d0000] text-sm hover:animate-pulse"
-                                >
-                                    Log Out
-                                </button>
-                            ) : (
-                                <>
-                                    <Link
-                                        to={"/login"}
-                                        className="bg-[#ffd700] px-5 py-1 rounded-md lg:rounded-xl shadow-lg text-[#7d0000] text-sm hover:animate-bounce"
-                                    >
-                                        Log In
-                                    </Link>
-                                    <Link
-                                        to={"/register"}
-                                        className="bg-[#ffd700] px-5 py-1 rounded-md lg:rounded-xl shadow-lg text-[#7d0000] text-sm hover:animate-bounce"
-                                    >
-                                        Sign Up
-                                    </Link>
-                                </>
-                            )}
-                        </div>
+                <div className='absolute top-0 left-0 w-full h-full bg-black z-10 lg:hidden'>
+                    <div className='flex flex-col p-4 space-y-4'>
+                        <button onClick={() => navigate('/')} className='flex items-center hover:bg-[#FF5656] p-2 rounded'>
+                            <FontAwesomeIcon icon={faHouse} className='mr-2' />
+                            Home
+                        </button>
+                        <button onClick={() => navigate('/settings')} className='flex items-center hover:bg-[#FF5656] p-2 rounded'>
+                            <FontAwesomeIcon icon={faGear} className='mr-2' />
+                            Settings
+                        </button>
+                        <button onClick={handleAuthClick} className='flex items-center hover:bg-[#FF5656] p-2 rounded'>
+                            <FontAwesomeIcon icon={isLoggedIn ? faRightFromBracket : faSignInAlt} className='mr-2' />
+                            {isLoggedIn ? 'Logout' : 'Login'}
+                        </button>
                     </div>
                 </div>
             )}
 
-            {/* Render Login Form */}
-            {showLoginForm && <LoginForm onClose={() => setShowLoginForm(false)} />}
+            {/* Show login form */}
+            {showLoginForm && (
+                <LoginForm onClose={() => setShowLoginForm(false)} setIsLoggedIn={setIsLoggedIn} />
+            )}
         </>
     );
 };
